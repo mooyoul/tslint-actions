@@ -13,3 +13,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pattern: '*.ts'
+      - name: Build
+        run: npm run build
+      - name: Publish
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: npx semantic-release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
