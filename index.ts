@@ -10,6 +10,9 @@ import { Configuration, Linter, RuleSeverity } from "tslint";
 
 const CHECK_NAME = "TSLint Checks";
 
+
+
+
 const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">([
   ["warning", "warning"],
   ["error", "failure"],
@@ -49,6 +52,9 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">(
     formatter: "json",
   };
 
+  // oops
+  Math.floor(0x40 >> 4);
+
   // Create a new Linter instance
   const result = (() => {
     if (projectFileName && !pattern) {
@@ -80,6 +86,8 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">(
       return linter.getResult();
     }
   })();
+
+  console.log("breaking lintp passing");
 
   const annotations: Octokit.ChecksCreateParamsOutputAnnotations[] = result.failures.map((failure) => ({
     path: failure.getFileName(),
