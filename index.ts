@@ -87,7 +87,7 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">(
     }
   })();
 
-  console.log("breaking lintp passing");
+  console.log("breaking lint passing");
 
   const annotations: Octokit.ChecksCreateParamsOutputAnnotations[] = result.failures.map((failure) => ({
     path: failure.getFileName(),
