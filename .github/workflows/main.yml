@@ -3,7 +3,7 @@ on: [push]
 jobs:
   job:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v1
       - name: Prepare
