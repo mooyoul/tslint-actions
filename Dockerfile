@@ -11,6 +11,7 @@ LABEL maintainer="MooYeol Prescott Lee <mooyoul@gmail.com>"
 RUN mkdir -p /var/task/
 COPY entrypoint.sh package.json package-lock.json index.ts /var/task/
 
+WORKDIR /var/task
 RUN npm ci --production
 
 ENTRYPOINT ["/var/task/entrypoint.sh"]
