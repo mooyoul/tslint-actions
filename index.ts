@@ -21,7 +21,7 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">(
   const configFileName = core.getInput("config") || "tslint.json";
   const projectFileName = core.getInput("project");
   const pattern = core.getInput("pattern");
-  const ghToken = core.getInput("GH_TOKEN");
+  const ghToken = core.getInput("token");
 
   if (!projectFileName && !pattern) {
     core.setFailed("tslint-actions: Please set project or pattern input");
@@ -29,7 +29,7 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">(
   }
 
   if (!ghToken) {
-    core.setFailed("tslint-actions: Please set GH_TOKEN");
+    core.setFailed("tslint-actions: Please set token");
     return;
   }
 

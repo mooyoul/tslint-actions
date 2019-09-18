@@ -57,13 +57,13 @@ var SeverityAnnotationLevelMap = new Map([
                 configFileName = core.getInput("config") || "tslint.json";
                 projectFileName = core.getInput("project");
                 pattern = core.getInput("pattern");
-                ghToken = core.getInput("GH_TOKEN");
+                ghToken = core.getInput("token");
                 if (!projectFileName && !pattern) {
                     core.setFailed("tslint-actions: Please set project or pattern input");
                     return [2 /*return*/];
                 }
                 if (!ghToken) {
-                    core.setFailed("tslint-actions: Please set GH_TOKEN");
+                    core.setFailed("tslint-actions: Please set token");
                     return [2 /*return*/];
                 }
                 octokit = new github.GitHub(ghToken);
