@@ -8,6 +8,7 @@ LABEL com.github.actions.color="blue"
 
 LABEL maintainer="MooYeol Prescott Lee <mooyoul@gmail.com>"
 
+RUN mkdir -p /var/task/
 COPY entrypoint.sh package.json package-lock.json index.js /var/task/
 
 RUN npm ci --production
