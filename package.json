@@ -4,6 +4,7 @@
   "description": "GitHub action that lints your code with TSLint (with Annotation support)",
   "main": "index.js",
   "scripts": {
+    "build": "tsc index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -35,7 +36,6 @@
     "@actions/github": "^1.1.0",
     "axios": "^0.19.0",
     "glob": "^7.1.4",
-    "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "typescript": "^3.6.3"
   }

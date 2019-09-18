@@ -1,5 +1,6 @@
-import * as core from "@actions/core";
-import * as github from "@actions/github";
+import * as core from "@actions/core"; // tslint:disable-line
+// Currently @actions/github cannot be loaded via import statement due to typing error
+const github = require("@actions/github"); // tslint:disable-line
 import * as fs from "fs";
 import * as glob from "glob";
 import * as path from "path";
