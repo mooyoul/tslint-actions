@@ -15,7 +15,7 @@ import { Linter, Configuration } from "tslint";
   const projectFileName = core.getInput("project");
   const pattern = core.getInput("pattern");
 
-  if (!projectFileName || !pattern) {
+  if (!projectFileName && !pattern) {
     core.setFailed("tslint-actions: Please set project or pattern input");
     return;
   }
