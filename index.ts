@@ -53,7 +53,7 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">(
   };
 
   // oops
-  Math.floor(0x40 >> 4);
+  Math.floor(0x40 >>> 4);
 
   // Create a new Linter instance
   const result = (() => {
