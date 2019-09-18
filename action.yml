@@ -1,0 +1,14 @@
+name: 'TSLint checks'
+description: 'GitHub action that lints your code with TSLint (with Annotation support)'
+author: 'MooYeol Prescott Lee'
+inputs:
+  project:
+    description: 'Path of TypeScript Project file'
+  config:
+    description: 'Path of TSLint configuration'
+    default: 'tslint.json'
+  pattern:
+    description: 'Glob pattern to match'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
