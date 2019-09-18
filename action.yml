@@ -2,6 +2,9 @@ name: 'TSLint checks'
 description: 'GitHub action that lints your code with TSLint (with Annotation support)'
 author: 'MooYeol Prescott Lee'
 inputs:
+  token:
+    description: 'Github Token'
+    required: true
   project:
     description: 'Path of TypeScript Project file'
   config:

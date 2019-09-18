@@ -1,27 +1,48 @@
 import * as core from "@actions/core"; // tslint:disable-line
 // Currently @actions/github cannot be loaded via import statement due to typing error
 const github = require("@actions/github"); // tslint:disable-line
+import { Context } from "@actions/github/lib/context";
+import * as Octokit from "@octokit/rest";
 import * as fs from "fs";
 import * as glob from "glob";
 import * as path from "path";
-import { Linter, Configuration } from "tslint";
+import { Linter, Configuration, RuleSeverity } from "tslint";
+
+const CHECK_NAME = "TSLint Checks";
+
+const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">([
+  ["warning", "warning"],
+  ["error", "failure"],
+]);
 
 (async () => {
-  // Get the JSON webhook payload for the event that triggered the workflow
-  const payload = JSON.stringify(github.context.payload, undefined, 2);
-  console.log(`The event payload: ${payload}`);
+  const ctx = github.context as Context;
 
   const configFileName = core.getInput("config") || "tslint.json";
   const projectFileName = core.getInput("project");
   const pattern = core.getInput("pattern");
+  const ghToken = core.getInput("GH_TOKEN");
 
   if (!projectFileName && !pattern) {
     core.setFailed("tslint-actions: Please set project or pattern input");
     return;
   }
 
-  const projectDir = path.dirname(path.resolve(projectFileName));
-  const typeCheckingEnabled = !!projectFileName;
+  if (!ghToken) {
+    core.setFailed("tslint-actions: Please set GH_TOKEN");
+    return;
+  }
+
+  const octokit = new github.GitHub(ghToken) as Octokit;
+
+  // Create check
+  const check = await octokit.checks.create({
+    owner: ctx.repo.owner,
+    repo: ctx.repo.repo,
+    name: CHECK_NAME,
+    head_sha: ctx.sha,
+    status: 'in_progress',
+  });
 
   const options = {
     fix: false,
@@ -30,7 +51,8 @@ import { Linter, Configuration } from "tslint";
 
   // Create a new Linter instance
   const result = (() => {
-    if (typeCheckingEnabled && !pattern) {
+    if (projectFileName && !pattern) {
+      const projectDir = path.dirname(path.resolve(projectFileName));
       const program = Linter.createProgram(projectFileName, projectDir);
       const linter = new Linter(options, program);
 
@@ -48,7 +70,7 @@ import { Linter, Configuration } from "tslint";
     } else {
       const linter = new Linter(options);
 
-      const files = glob.sync(pattern);
+      const files = glob.sync(pattern!);
       for (const file of files) {
         const fileContents = fs.readFileSync(file, { encoding: "utf8" });
         const configuration = Configuration.findConfiguration(configFileName, file).results;
@@ -60,6 +82,29 @@ import { Linter, Configuration } from "tslint";
   })();
 
   console.log("results: ", result);
+
+  const annotations: Octokit.ChecksCreateParamsOutputAnnotations[] = result.failures.map((failure) => ({
+    path: failure.getFileName(),
+    start_line: failure.getStartPosition().getLineAndCharacter().line,
+    end_line: failure.getEndPosition().getLineAndCharacter().line,
+    annotation_level: SeverityAnnotationLevelMap.get(failure.getRuleSeverity()) || "notice",
+    message: `${failure.getRuleName()} ${failure.getFailure()}`,
+  }));
+
+  // Update check
+  await octokit.checks.update({
+    owner: ctx.repo.owner,
+    repo: ctx.repo.repo,
+    check_run_id: check.data.id,
+    name: CHECK_NAME,
+    status: "completed",
+    conclusion: result.errorCount > 0 ? "failure" : "success",
+    output: {
+      title: CHECK_NAME,
+      summary: `${result.errorCount} error(s), ${result.warningCount} warning(s) found`,
+      annotations,
+    },
+  });
 })().catch((e) => {
   console.error(e.message);
   core.setFailed(e.message);

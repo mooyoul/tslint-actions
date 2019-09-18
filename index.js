@@ -37,59 +37,105 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var core = require("@actions/core"); // tslint:disable-line
-var github = require("@actions/github"); // WTF
+// Currently @actions/github cannot be loaded via import statement due to typing error
+var github = require("@actions/github"); // tslint:disable-line
 var fs = require("fs");
 var glob = require("glob");
 var path = require("path");
 var tslint_1 = require("tslint");
+var CHECK_NAME = "TSLint Checks";
+var SeverityAnnotationLevelMap = new Map([
+    ["warning", "warning"],
+    ["error", "failure"],
+]);
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var payload, configFileName, projectFileName, pattern, projectDir, typeCheckingEnabled, options, result;
+    var ctx, configFileName, projectFileName, pattern, ghToken, octokit, check, options, result, annotations;
     return __generator(this, function (_a) {
-        payload = JSON.stringify(github.context.payload, undefined, 2);
-        console.log("The event payload: " + payload);
-        configFileName = core.getInput("config") || "tslint.json";
-        projectFileName = core.getInput("project");
-        pattern = core.getInput("pattern");
-        if (!projectFileName || !pattern) {
-            core.setFailed("tslint-actions: Please set project or pattern input");
-            return [2 /*return*/];
-        }
-        projectDir = path.dirname(path.resolve(projectFileName));
-        typeCheckingEnabled = !!projectFileName;
-        options = {
-            fix: false,
-            formatter: "json"
-        };
-        result = (function () {
-            if (typeCheckingEnabled && !pattern) {
-                var program = tslint_1.Linter.createProgram(projectFileName, projectDir);
-                var linter = new tslint_1.Linter(options, program);
-                var files = tslint_1.Linter.getFileNames(program);
-                for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
-                    var file = files_1[_i];
-                    var sourceFile = program.getSourceFile(file);
-                    if (sourceFile) {
-                        var fileContents = sourceFile.getFullText();
-                        var configuration = tslint_1.Configuration.findConfiguration(configFileName, file).results;
-                        linter.lint(file, fileContents, configuration);
+        switch (_a.label) {
+            case 0:
+                ctx = github.context;
+                configFileName = core.getInput("config") || "tslint.json";
+                projectFileName = core.getInput("project");
+                pattern = core.getInput("pattern");
+                ghToken = core.getInput("GH_TOKEN");
+                if (!projectFileName && !pattern) {
+                    core.setFailed("tslint-actions: Please set project or pattern input");
+                    return [2 /*return*/];
+                }
+                if (!ghToken) {
+                    core.setFailed("tslint-actions: Please set GH_TOKEN");
+                    return [2 /*return*/];
+                }
+                octokit = new github.GitHub(ghToken);
+                return [4 /*yield*/, octokit.checks.create({
+                        owner: ctx.repo.owner,
+                        repo: ctx.repo.repo,
+                        name: CHECK_NAME,
+                        head_sha: ctx.sha,
+                        status: 'in_progress'
+                    })];
+            case 1:
+                check = _a.sent();
+                options = {
+                    fix: false,
+                    formatter: "json"
+                };
+                result = (function () {
+                    if (projectFileName && !pattern) {
+                        var projectDir = path.dirname(path.resolve(projectFileName));
+                        var program = tslint_1.Linter.createProgram(projectFileName, projectDir);
+                        var linter = new tslint_1.Linter(options, program);
+                        var files = tslint_1.Linter.getFileNames(program);
+                        for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
+                            var file = files_1[_i];
+                            var sourceFile = program.getSourceFile(file);
+                            if (sourceFile) {
+                                var fileContents = sourceFile.getFullText();
+                                var configuration = tslint_1.Configuration.findConfiguration(configFileName, file).results;
+                                linter.lint(file, fileContents, configuration);
+                            }
+                        }
+                        return linter.getResult();
                     }
-                }
-                return linter.getResult();
-            }
-            else {
-                var linter = new tslint_1.Linter(options);
-                var files = glob.sync(pattern);
-                for (var _a = 0, files_2 = files; _a < files_2.length; _a++) {
-                    var file = files_2[_a];
-                    var fileContents = fs.readFileSync(file, { encoding: "utf8" });
-                    var configuration = tslint_1.Configuration.findConfiguration(configFileName, file).results;
-                    linter.lint(file, fileContents, configuration);
-                }
-                return linter.getResult();
-            }
-        })();
-        console.log("results: ", result);
-        return [2 /*return*/];
+                    else {
+                        var linter = new tslint_1.Linter(options);
+                        var files = glob.sync(pattern);
+                        for (var _a = 0, files_2 = files; _a < files_2.length; _a++) {
+                            var file = files_2[_a];
+                            var fileContents = fs.readFileSync(file, { encoding: "utf8" });
+                            var configuration = tslint_1.Configuration.findConfiguration(configFileName, file).results;
+                            linter.lint(file, fileContents, configuration);
+                        }
+                        return linter.getResult();
+                    }
+                })();
+                console.log("results: ", result);
+                annotations = result.failures.map(function (failure) { return ({
+                    path: failure.getFileName(),
+                    start_line: failure.getStartPosition().getLineAndCharacter().line,
+                    end_line: failure.getEndPosition().getLineAndCharacter().line,
+                    annotation_level: SeverityAnnotationLevelMap.get(failure.getRuleSeverity()) || "notice",
+                    message: failure.getRuleName() + " " + failure.getFailure()
+                }); });
+                // Update check
+                return [4 /*yield*/, octokit.checks.update({
+                        owner: ctx.repo.owner,
+                        repo: ctx.repo.repo,
+                        check_run_id: check.data.id,
+                        name: CHECK_NAME,
+                        status: "completed",
+                        conclusion: result.errorCount > 0 ? "failure" : "success",
+                        output: {
+                            title: CHECK_NAME,
+                            summary: result.errorCount + " error(s), " + result.warningCount + " warning(s) found",
+                            annotations: annotations
+                        }
+                    })];
+            case 2:
+                // Update check
+                _a.sent();
+                return [2 /*return*/];
+        }
     });
 }); })()["catch"](function (e) {
     console.error(e.message);

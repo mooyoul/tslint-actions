@@ -11,4 +11,5 @@ jobs:
       - name: Lint
         uses: mooyoul/tslint-actions@master
         with:
-         pattern: '*.ts'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: '*.ts'
