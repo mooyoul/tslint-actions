@@ -72,7 +72,7 @@ var SeverityAnnotationLevelMap = new Map([
                         repo: ctx.repo.repo,
                         name: CHECK_NAME,
                         head_sha: ctx.sha,
-                        status: 'in_progress'
+                        status: "in_progress"
                     })];
             case 1:
                 check = _a.sent();
@@ -109,7 +109,6 @@ var SeverityAnnotationLevelMap = new Map([
                         return linter.getResult();
                     }
                 })();
-                console.log("results: ", result);
                 annotations = result.failures.map(function (failure) { return ({
                     path: failure.getFileName(),
                     start_line: failure.getStartPosition().getLineAndCharacter().line,
@@ -138,6 +137,6 @@ var SeverityAnnotationLevelMap = new Map([
         }
     });
 }); })()["catch"](function (e) {
-    console.error(e.message);
+    console.error(e.stack); // tslint:disable-line
     core.setFailed(e.message);
 });

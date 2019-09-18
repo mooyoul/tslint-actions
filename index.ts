@@ -6,7 +6,7 @@ import * as Octokit from "@octokit/rest";
 import * as fs from "fs";
 import * as glob from "glob";
 import * as path from "path";
-import { Linter, Configuration, RuleSeverity } from "tslint";
+import { Configuration, Linter, RuleSeverity } from "tslint";
 
 const CHECK_NAME = "TSLint Checks";
 
@@ -41,7 +41,7 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">(
     repo: ctx.repo.repo,
     name: CHECK_NAME,
     head_sha: ctx.sha,
-    status: 'in_progress',
+    status: "in_progress",
   });
 
   const options = {
@@ -81,8 +81,6 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">(
     }
   })();
 
-  console.log("results: ", result);
-
   const annotations: Octokit.ChecksCreateParamsOutputAnnotations[] = result.failures.map((failure) => ({
     path: failure.getFileName(),
     start_line: failure.getStartPosition().getLineAndCharacter().line,
@@ -106,6 +104,6 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">(
     },
   });
 })().catch((e) => {
-  console.error(e.message);
+  console.error(e.stack); // tslint:disable-line
   core.setFailed(e.message);
 });
