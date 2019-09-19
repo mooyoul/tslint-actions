@@ -24,11 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - uses: actions/checkout@v1.0.0
+      - uses: actions/checkout@v1
       - name: Prepare
         run: npm ci
       - name: Lint
-        uses: mooyoul/tslint-actions@master
+        uses: mooyoul/tslint-actions@v1.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pattern: '*.ts'
