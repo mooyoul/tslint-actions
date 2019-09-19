@@ -1,4 +1,8 @@
 "use strict";
+var __makeTemplateObject = (this && this.__makeTemplateObject) || function (cooked, raw) {
+    if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
+    return cooked;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -39,6 +43,7 @@ exports.__esModule = true;
 var core = require("@actions/core"); // tslint:disable-line
 // Currently @actions/github cannot be loaded via import statement due to typing error
 var github = require("@actions/github"); // tslint:disable-line
+var common_tags_1 = require("common-tags");
 var fs = require("fs");
 var glob = require("glob");
 var path = require("path");
@@ -127,6 +132,7 @@ var SeverityAnnotationLevelMap = new Map([
                         output: {
                             title: CHECK_NAME,
                             summary: result.errorCount + " error(s), " + result.warningCount + " warning(s) found",
+                            text: common_tags_1.stripIndent(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n        ## Configuration\n\n        #### Actions Input\n\n        | Name | Value |\n        | ---- | ----- |\n        | config | `", "` |\n        | project | `", "` |\n        | pattern | `", "` |\n\n        #### TSLint Configuration\n\n        ```json\n        __CONFIG_CONTENT__\n        ```\n        </details>\n      "], ["\n        ## Configuration\n\n        #### Actions Input\n\n        | Name | Value |\n        | ---- | ----- |\n        | config | \\`", "\\` |\n        | project | \\`", "\\` |\n        | pattern | \\`", "\\` |\n\n        #### TSLint Configuration\n\n        \\`\\`\\`json\n        __CONFIG_CONTENT__\n        \\`\\`\\`\n        </details>\n      "])), configFileName, projectFileName || "(not provided)", pattern || "(not provided)").replace("__CONFIG_CONTENT__", JSON.stringify(tslint_1.Configuration.readConfigurationFile(configFileName), null, 2)),
                             annotations: annotations
                         }
                     })];
@@ -140,3 +146,4 @@ var SeverityAnnotationLevelMap = new Map([
     console.error(e.stack); // tslint:disable-line
     core.setFailed(e.message);
 });
+var templateObject_1;
