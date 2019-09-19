@@ -4,7 +4,7 @@
   "description": "GitHub action that lints your code with TSLint (with Annotation support)",
   "main": "index.js",
   "scripts": {
-    "build": "tsc index.ts"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
