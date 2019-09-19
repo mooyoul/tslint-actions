@@ -3,6 +3,7 @@ import * as core from "@actions/core"; // tslint:disable-line
 const github = require("@actions/github"); // tslint:disable-line
 import { Context } from "@actions/github/lib/context";
 import * as Octokit from "@octokit/rest";
+import { stripIndent as markdown } from "common-tags";
 import * as fs from "fs";
 import * as glob from "glob";
 import * as path from "path";
@@ -100,6 +101,24 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, "warning" | "failure">(
     output: {
       title: CHECK_NAME,
       summary: `${result.errorCount} error(s), ${result.warningCount} warning(s) found`,
+      text: markdown`
+        ## Configuration
+
+        #### Actions Input
+
+        | Name | Value |
+        | ---- | ----- |
+        | config | \`${configFileName}\` |
+        | project | \`${projectFileName || "(not provided)"}\` |
+        | pattern | \`${pattern || "(not provided)"}\` |
+
+        #### TSLint Configuration
+
+        \`\`\`json
+        __CONFIG_CONTENT__
+        \`\`\`
+        </details>
+      `.replace("__CONFIG_CONTENT__", JSON.stringify(Configuration.readConfigurationFile(configFileName), null, 2)),
       annotations,
     },
   });
