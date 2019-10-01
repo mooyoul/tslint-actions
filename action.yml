@@ -12,6 +12,8 @@ inputs:
     default: 'tslint.json'
   pattern:
     description: 'Glob pattern to match'
+  only-changed:
+    description: 'Apply glob patter only to changed files'
 runs:
   using: 'docker'
   image: 'Dockerfile'

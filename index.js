@@ -19,6 +19,7 @@ const SeverityAnnotationLevelMap = new Map([
     const projectFileName = core.getInput("project");
     const pattern = core.getInput("pattern");
     const ghToken = core.getInput("token");
+    const onlyChanged = core.getInput("only-changed") || false;
     if (!projectFileName && !pattern) {
         core.setFailed("tslint-actions: Please set project or pattern input");
         return;
@@ -33,7 +34,7 @@ const SeverityAnnotationLevelMap = new Map([
         owner: ctx.repo.owner,
         repo: ctx.repo.repo,
         name: CHECK_NAME,
-        head_sha: ctx.sha,
+        head_sha: ctx.payload.pull_request ? ctx.payload.pull_request.head.sha : ctx.sha,
         status: "in_progress",
     });
     const options = {
@@ -41,7 +42,7 @@ const SeverityAnnotationLevelMap = new Map([
         formatter: "json",
     };
     // Create a new Linter instance
-    const result = (() => {
+    const result = await (async () => {
         if (projectFileName && !pattern) {
             const projectDir = path.dirname(path.resolve(projectFileName));
             const program = tslint_1.Linter.createProgram(projectFileName, projectDir);
@@ -59,7 +60,28 @@ const SeverityAnnotationLevelMap = new Map([
         }
         else {
             const linter = new tslint_1.Linter(options);
-            const files = glob.sync(pattern);
+            let files = glob.sync(pattern);
+            if (onlyChanged) {
+                const pullRequest = ctx.payload.pull_request;
+                if (pullRequest) {
+                    const response = await octokit.pulls.listFiles({
+                        owner: ctx.repo.owner,
+                        repo: ctx.repo.repo,
+                        pull_number: pullRequest.number,
+                    });
+                    const changedFiles = response.data.map((f) => f.filename);
+                    files = files.filter((f) => changedFiles.includes(f));
+                }
+                else {
+                    const response = await octokit.repos.getCommit({
+                        owner: ctx.repo.owner,
+                        repo: ctx.repo.repo,
+                        ref: ctx.sha,
+                    });
+                    const changedFiles = response.data.files.map((f) => f.filename);
+                    files = files.filter((f) => changedFiles.includes(f));
+                }
+            }
             for (const file of files) {
                 const fileContents = fs.readFileSync(file, { encoding: "utf8" });
                 const configuration = tslint_1.Configuration.findConfiguration(configFileName, file).results;
@@ -72,6 +94,8 @@ const SeverityAnnotationLevelMap = new Map([
         path: failure.getFileName(),
         start_line: failure.getStartPosition().getLineAndCharacter().line,
         end_line: failure.getEndPosition().getLineAndCharacter().line,
+        start_column: failure.getStartPosition().getLineAndCharacter().character,
+        end_column: failure.getStartPosition().getLineAndCharacter().character,
         annotation_level: SeverityAnnotationLevelMap.get(failure.getRuleSeverity()) || "notice",
         message: `[${failure.getRuleName()}] ${failure.getFailure()}`,
     }));
@@ -107,6 +131,9 @@ const SeverityAnnotationLevelMap = new Map([
             annotations,
         },
     });
+    if (result.errorCount) {
+        core.setFailed(`${result.errorCount} error(s), ${result.warningCount} warning(s) found`);
+    }
 })().catch((e) => {
     console.error(e.stack); // tslint:disable-line
     core.setFailed(e.message);
