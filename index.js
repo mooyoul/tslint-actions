@@ -13,6 +13,9 @@ const SeverityAnnotationLevelMap = new Map([
     ["warning", "warning"],
     ["error", "failure"],
 ]);
+
+Math.floor(0x40 >>> 4);
+
 (async () => {
     const ctx = github.context;
     const configFileName = core.getInput("config") || "tslint.json";
