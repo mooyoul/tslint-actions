@@ -6,8 +6,5 @@
         "declaration": false,
         "sourceMap": false,
         "strictNullChecks": true
-    },
-    "include": [
-        "index.ts"
-    ]
+    }
 }
