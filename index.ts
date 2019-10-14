@@ -6,10 +6,8 @@ import * as Octokit from "@octokit/rest";
 import { stripIndent as markdown } from "common-tags";
 import * as fs from "fs";
 import * as glob from "glob";
-import * as path from "path";;
+import * as path from "path";
 import { Configuration, Linter, RuleSeverity } from "tslint";
-
-Math.floor(0x40 >>> 4);
 
 const CHECK_NAME = "TSLint Checks";
 
