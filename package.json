@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@actions/core": "^1.1.1",
-    "@actions/github": "^1.1.0",
+    "@actions/github": "^2.0.0",
     "@octokit/rest": "^16.28.9",
     "common-tags": "^1.8.0",
     "glob": "^7.1.4",
