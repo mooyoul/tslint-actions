@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/mooyoul/tslint-actions#readme",
   "devDependencies": {
-    "@semantic-release/changelog": "3.0.6",
+    "@semantic-release/changelog": "5.0.1",
     "@semantic-release/commit-analyzer": "6.3.3",
     "@semantic-release/exec": "3.3.8",
     "@semantic-release/git": "7.0.18",
