@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/mooyoul/tslint-actions/compare/v1.1.3...v1.1.4) (2021-04-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @octokit/rest to ^16.36.0 ([8bb8117](https://github.com/mooyoul/tslint-actions/commit/8bb8117fa19ef4321f819f612d1b8020fbbf70e6))
+
 ## [1.1.3](https://github.com/mooyoul/tslint-actions/compare/v1.1.2...v1.1.3) (2021-04-19)
 
 
