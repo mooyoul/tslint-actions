@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/mooyoul/tslint-actions/compare/v1.1.2...v1.1.3) (2021-04-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @actions/core to ^1.2.6 ([bbc3196](https://github.com/mooyoul/tslint-actions/commit/bbc319655cf6b255dcb0fac6857daa88e060ea3c))
+
 ## [1.1.2](https://github.com/mooyoul/tslint-actions/compare/v1.1.1...v1.1.2) (2020-10-01)
 
 
