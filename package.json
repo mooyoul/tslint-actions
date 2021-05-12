@@ -37,7 +37,7 @@
     "@vingle/tslint-preset": "1.0.1",
     "chai": "4.3.4",
     "husky": "3.1.0",
-    "semantic-release": "15.14.0"
+    "semantic-release": "17.2.3"
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
